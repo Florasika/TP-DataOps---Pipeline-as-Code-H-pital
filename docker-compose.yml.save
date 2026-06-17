@@ -1,0 +1,18 @@
+ITAL_PG_HOST: postgres-hospital
+    HOSPITAL_PG_PORT: "5432"
+    HOSPITAL_PG_DB: hospital_db
+    HOSPITAL_PG_USER: hospital_user
+    HOSPITAL_PG_PASSWORD: hospital_pwd
+    MINIO_ENDPOINT: http://minio:9000
+    MINIO_ACCESS_KEY: minioadmin
+    MINIO_SECRET_KEY: minioadmin
+    MINIO_BUCKET: hospital-raw
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - airflow_logs:/opt/airflow/logs
+  depends_on:
+    postgres-hospital:
+      condition: service_healthy
+    minio:
+      condition: service_healthy
+    minio-i

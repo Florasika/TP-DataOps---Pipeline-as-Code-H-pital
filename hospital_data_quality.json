@@ -1,0 +1,209 @@
+{
+  "id": null,
+  "uid": "hospital-data-quality",
+  "title": "H\u00f4pital - Pipeline Data Quality",
+  "tags": [
+    "airflow",
+    "great-expectations",
+    "pipeline-as-code"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Derni\u00e8re ingestion - lignes brutes",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "hospital_postgres"
+      },
+      "targets": [
+        {
+          "format": "table",
+          "rawSql": "SELECT raw_rows FROM v_last_ingestion;",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Patients ins\u00e9r\u00e9s",
+      "gridPos": {
+        "x": 6,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "hospital_postgres"
+      },
+      "targets": [
+        {
+          "format": "table",
+          "rawSql": "SELECT inserted_rows FROM v_last_ingestion;",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Lignes rejet\u00e9es",
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "hospital_postgres"
+      },
+      "targets": [
+        {
+          "format": "table",
+          "rawSql": "SELECT rejected_rows FROM v_last_ingestion;",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Great Expectations OK ?",
+      "gridPos": {
+        "x": 18,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "hospital_postgres"
+      },
+      "targets": [
+        {
+          "format": "table",
+          "rawSql": "SELECT CASE WHEN ge_success THEN 1 ELSE 0 END AS ge_success FROM v_last_ingestion;",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "barchart",
+      "title": "Patients par service",
+      "gridPos": {
+        "x": 0,
+        "y": 4,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "hospital_postgres"
+      },
+      "targets": [
+        {
+          "format": "table",
+          "rawSql": "SELECT service, nb_patients FROM v_patients_by_service ORDER BY nb_patients DESC;",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "barchart",
+      "title": "Rejets par raison",
+      "gridPos": {
+        "x": 12,
+        "y": 4,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "hospital_postgres"
+      },
+      "targets": [
+        {
+          "format": "table",
+          "rawSql": "SELECT reject_reason, nb_rejets FROM v_rejects_by_reason ORDER BY nb_rejets DESC;",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Historique des ingestions",
+      "gridPos": {
+        "x": 0,
+        "y": 12,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "hospital_postgres"
+      },
+      "targets": [
+        {
+          "format": "time_series",
+          "rawSql": "SELECT finished_at AS time, raw_rows, inserted_rows, rejected_rows, duplicate_rows FROM ingestion_run WHERE finished_at IS NOT NULL ORDER BY finished_at;",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Distribution \u00e2ge min / moyenne / max",
+      "gridPos": {
+        "x": 12,
+        "y": 12,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "hospital_postgres"
+      },
+      "targets": [
+        {
+          "format": "time_series",
+          "rawSql": "SELECT finished_at AS time, age_min, age_avg, age_max FROM ingestion_run WHERE finished_at IS NOT NULL ORDER BY finished_at;",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "title": "Derniers r\u00e9sultats Great Expectations",
+      "gridPos": {
+        "x": 0,
+        "y": 20,
+        "w": 24,
+        "h": 8
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "hospital_postgres"
+      },
+      "targets": [
+        {
+          "format": "table",
+          "rawSql": "SELECT expectation_name, column_name, success, observed_value, created_at FROM v_ge_last_results;",
+          "refId": "A"
+        }
+      ]
+    }
+  ]
+}
